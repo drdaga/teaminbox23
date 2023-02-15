@@ -1,4 +1,5 @@
 import Index from './Index';
+import WhatsappIndex from './whatsapp/Index';
 import SettingsContent from '../Wrapper';
 import { frontendURL } from '../../../../helper/URLHelper';
 
@@ -14,8 +15,8 @@ export default {
       children: [
         {
           path: '',
-          redirect: 'ongoing',
-        },
+          redirect: 'whatsapp',
+                },
         {
           path: 'ongoing',
           name: 'settings_account_campaigns',
@@ -37,6 +38,22 @@ export default {
           name: 'one_off',
           roles: ['administrator'],
           component: { ...Index },
+        },
+      ],
+    },
+    {
+      path: frontendURL('accounts/:accountId/campaigns'),
+      component: SettingsContent,
+      props: {
+        headerTitle: 'CAMPAIGN.WHATSAPP.HEADER',
+        icon: 'whatsapp',
+      },
+      children: [
+        {
+          path: 'whatsapp',
+          name: 'whatsapp',
+          roles: ['administrator'],
+          component: { ...WhatsappIndex },
         },
       ],
     },
