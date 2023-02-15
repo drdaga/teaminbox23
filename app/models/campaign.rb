@@ -87,7 +87,7 @@ class Campaign < ApplicationRecord
       self.scheduled_at = nil
     end
 
-    self.campaign_type = campaign_types[inbox.inbox_type].presence || 'ongoing'
+    self.campaign_type = campaign_types[inbox.inbox_type] || 'ongoing'
   end
 
   def validate_url

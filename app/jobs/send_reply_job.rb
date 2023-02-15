@@ -11,7 +11,7 @@ class SendReplyJob < ApplicationJob
       'Channel::TwilioSms' => ::Twilio::SendOnTwilioService,
       'Channel::Line' => ::Line::SendOnLineService,
       'Channel::Telegram' => ::Telegram::SendOnTelegramService,
-      'Channel::Whatsapp' => ::Whatsapp::SendOnWhatsappService,
+      'Channel::Whatsapp' => ::Whatsapp::Enhanced::SendOnWhatsappService,
       'Channel::Sms' => ::Sms::SendOnSmsService
     }
 
