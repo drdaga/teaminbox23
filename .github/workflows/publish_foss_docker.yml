@@ -1,15 +1,15 @@
 # #
-# # This action will publish Chatwoot CE docker image.
+# # This action will publish Teaminbox CE docker image.
 # # This is set to run against merges to develop, master
 # # and when tags are created.
 # #
 
-name: Publish Chatwoot CE docker images
+name: Publish Team Inbox  docker images
 on:
   push:
     branches:
-      - develop
-      - master
+      - main
+      - new-features
     tags:
       - v*
   workflow_dispatch:
@@ -34,18 +34,18 @@ jobs:
           rm -rf enterprise
           rm -rf spec/enterprise
 
-      - name: Set Chatwoot edition
+      - name: Set Teaminbox edition
         run: |
           echo -en '\nENV CW_EDITION="ce"' >> docker/Dockerfile
 
       - name: set docker tag
         run: |
-          echo "DOCKER_TAG=chatwoot/chatwoot:$GIT_REF-ce" >> $GITHUB_ENV
+          echo "DOCKER_TAG=drdaga/teaminbox:latest" >> $GITHUB_ENV
 
       - name: replace docker tag if master
-        if: github.ref_name == 'master'
+        if: github.ref_name == 'new-features'
         run: |
-          echo "DOCKER_TAG=chatwoot/chatwoot:latest-ce" >> $GITHUB_ENV
+          echo "DOCKER_TAG=drdaga/teaminbox:newfeatures" >> $GITHUB_ENV
 
       - name: Login to DockerHub
         uses: docker/login-action@v1
@@ -58,6 +58,5 @@ jobs:
         with:
           context: .
           file: docker/Dockerfile
-          platforms: linux/amd64
           push: true
           tags: ${{ env.DOCKER_TAG }}
