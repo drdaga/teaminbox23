@@ -1,5 +1,8 @@
 <template>
-  <li v-if="shouldRenderMessage" :class="alignBubble">
+  <li
+    v-if="hasAttachments || data.content || isEmailContentType"
+    :class="alignBubble"
+  >
     <div :class="wrapClass">
       <div v-tooltip.top-start="messageToolTip" :class="bubbleClass">
         <bubble-mail-head
@@ -8,16 +11,17 @@
           :bcc="emailHeadAttributes.bcc"
           :is-incoming="isIncoming"
         />
+        <bubble-whatsapp-template
+          v-if="isWhatsappTemplate && !isMessageDeleted"
+          :message="message"
+          :data="data"
+        />
         <bubble-text
-          v-if="data.content"
+          v-else-if="data.content"
           :message="message"
           :is-email="isEmailContentType"
+          :readable-time="readableTime"
           :display-quoted-button="displayQuotedButton"
-        />
-        <bubble-integration
-          :message-id="data.id"
-          :content-attributes="contentAttributes"
-          :inbox-id="data.inbox_id"
         />
         <span
           v-if="isPending && hasAttachments"
@@ -30,6 +34,7 @@
             <bubble-image
               v-if="attachment.file_type === 'image' && !hasImageError"
               :url="attachment.data_url"
+              :readable-time="readableTime"
               @error="onImageLoadError"
             />
             <audio v-else-if="attachment.file_type === 'audio'" controls>
@@ -38,22 +43,13 @@
             <bubble-video
               v-else-if="attachment.file_type === 'video'"
               :url="attachment.data_url"
+              :readable-time="readableTime"
             />
-            <bubble-location
-              v-else-if="attachment.file_type === 'location'"
-              :latitude="attachment.coordinates_lat"
-              :longitude="attachment.coordinates_long"
-              :name="attachment.fallback_title"
+            <bubble-file
+              v-else
+              :url="attachment.data_url"
+              :readable-time="readableTime"
             />
-            <bubble-contact
-              v-else-if="attachment.file_type === 'contact'"
-              :name="data.content"
-              :phone-number="attachment.fallback_title"
-            />
-            <instagram-image-error-placeholder
-              v-else-if="hasImageError && hasInstagramStory"
-            />
-            <bubble-file v-else :url="attachment.data_url" />
           </div>
         </div>
         <bubble-actions
@@ -68,9 +64,10 @@
           :is-private="data.private"
           :message-type="data.message_type"
           :message-status="status"
+          :readable-time="readableTime"
           :source-id="data.source_id"
           :inbox-id="data.inbox_id"
-          :created-at="createdAt"
+          :message-read="showReadTicks"
         />
       </div>
       <spinner v-if="isPending" size="tiny" />
@@ -110,51 +107,48 @@
         v-if="isBubble && !isMessageDeleted"
         :is-open="showContextMenu"
         :show-copy="hasText"
-        :show-delete="hasText || hasAttachments"
-        :show-canned-response-option="isOutgoing && hasText"
         :menu-position="contextMenuPosition"
-        :message-content="data.content"
         @toggle="handleContextMenuClick"
         @delete="handleDelete"
+        @copy="handleCopy"
       />
     </div>
   </li>
 </template>
 <script>
 import messageFormatterMixin from 'shared/mixins/messageFormatterMixin';
-import BubbleActions from './bubble/Actions';
-import BubbleFile from './bubble/File';
-import BubbleImage from './bubble/Image';
-import BubbleIntegration from './bubble/Integration.vue';
-import BubbleLocation from './bubble/Location';
+import timeMixin from '../../../mixins/time';
+
 import BubbleMailHead from './bubble/MailHead';
 import BubbleText from './bubble/Text';
+import BubbleWhatsappTemplate from './bubble/WhatsappTemplate';
+import BubbleImage from './bubble/Image';
+import BubbleFile from './bubble/File';
 import BubbleVideo from './bubble/Video.vue';
-import BubbleContact from './bubble/Contact';
+import BubbleActions from './bubble/Actions';
+
 import Spinner from 'shared/components/Spinner';
 import ContextMenu from 'dashboard/modules/conversations/components/MessageContextMenu';
-import instagramImageErrorPlaceholder from './instagramImageErrorPlaceholder.vue';
+
 import alertMixin from 'shared/mixins/alertMixin';
 import contentTypeMixin from 'shared/mixins/contentTypeMixin';
 import { MESSAGE_TYPE, MESSAGE_STATUS } from 'shared/constants/messages';
 import { generateBotMessageContent } from './helpers/botMessageContentHelper';
+import { copyTextToClipboard } from 'shared/helpers/clipboard';
 
 export default {
   components: {
     BubbleActions,
-    BubbleFile,
-    BubbleImage,
-    BubbleIntegration,
-    BubbleLocation,
-    BubbleMailHead,
     BubbleText,
+    BubbleImage,
+    BubbleFile,
     BubbleVideo,
-    BubbleContact,
+    BubbleMailHead,
     ContextMenu,
     Spinner,
-    instagramImageErrorPlaceholder,
+    BubbleWhatsappTemplate,
   },
-  mixins: [alertMixin, messageFormatterMixin, contentTypeMixin],
+  mixins: [alertMixin, timeMixin, messageFormatterMixin, contentTypeMixin],
   props: {
     data: {
       type: Object,
@@ -172,6 +166,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    hasUserReadMessage: {
+      type: Boolean,
+      default: false,
+    },
     isWebWidgetInbox: {
       type: Boolean,
       default: false,
@@ -184,14 +182,6 @@ export default {
     };
   },
   computed: {
-    shouldRenderMessage() {
-      return (
-        this.hasAttachments ||
-        this.data.content ||
-        this.isEmailContentType ||
-        this.isAnIntegrationMessage
-      );
-    },
     emailMessageContent() {
       const {
         html_content: { full: fullHTMLContent } = {},
@@ -211,10 +201,6 @@ export default {
       return false;
     },
     message() {
-      if (this.contentType === 'input_csat') {
-        return this.$t('CONVERSATION.CSAT_REPLY_MESSAGE');
-      }
-
       // If the message is an email, emailMessageContent would be present
       // In that case, we would use letter package to render the email
       if (this.emailMessageContent && this.isIncoming) {
@@ -282,8 +268,11 @@ export default {
         'has-tweet-menu': this.isATweet,
       };
     },
-    createdAt() {
-      return this.contentAttributes.external_created_at || this.data.created_at;
+    readableTime() {
+      return this.messageStamp(
+        this.contentAttributes.external_created_at || this.data.created_at,
+        'LLL d, h:mm a'
+      );
     },
     isBubble() {
       return [0, 1, 3].includes(this.data.message_type);
@@ -294,11 +283,19 @@ export default {
     isOutgoing() {
       return this.data.message_type === MESSAGE_TYPE.OUTGOING;
     },
+    showReadTicks() {
+      return (
+        (this.isOutgoing || this.isTemplate) &&
+        this.hasUserReadMessage &&
+        this.isWebWidgetInbox &&
+        !this.data.private
+      );
+    },
     isTemplate() {
       return this.data.message_type === MESSAGE_TYPE.TEMPLATE;
     },
-    isAnIntegrationMessage() {
-      return this.contentType === 'integrations';
+    isWhatsappTemplate() {
+      return this.data?.additional_attributes?.template_params ? true : false;
     },
     emailHeadAttributes() {
       return {
@@ -426,6 +423,11 @@ export default {
         this.showAlert(this.$t('CONVERSATION.FAIL_DELETE_MESSSAGE'));
       }
     },
+    async handleCopy() {
+      await copyTextToClipboard(this.data.content);
+      this.showAlert(this.$t('CONTACT_PANEL.COPY_SUCCESSFUL'));
+      this.showContextMenu = false;
+    },
     async retrySendMessage() {
       await this.$store.dispatch('sendMessageWithData', this.data);
     },
@@ -438,8 +440,6 @@ export default {
 <style lang="scss">
 .wrap {
   > .bubble {
-    min-width: 128px;
-
     &.is-image,
     &.is-video {
       padding: 0;
