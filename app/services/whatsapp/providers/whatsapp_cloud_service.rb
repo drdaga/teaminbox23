@@ -1,11 +1,8 @@
 class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseService
   def send_message(phone_number, message)
-    if message.attachments.present? || message.media?
-      send_attachment_message(phone_number, message) 
-    elsif message.interactive?
-      send_interactive_message(phone_number, message)
+    if message.attachments.present?
+      send_attachment_message(phone_number, message)
     else
-
       send_text_message(phone_number, message)
     end
   end
@@ -40,27 +37,15 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
   end
 
   def media_url(media_id)
-    "https://graph.facebook.com/v15.0/#{media_id}"
+    "https://graph.facebook.com/v13.0/#{media_id}"
   end
 
   private
 
   # TODO: See if we can unify the API versions and for both paths and make it consistent with out facebook app API versions
   def phone_id_path
-    "https://graph.facebook.com/v15.0/#{whatsapp_channel.provider_config['phone_number_id']}"
+    "https://graph.facebook.com/v13.0/#{whatsapp_channel.provider_config['phone_number_id']}"
   end
-  def send_interactive_message(phone_number, message)
-   response = HTTParty.post(messages_path, headers: api_headers,
-                                                          body: {
-                                                            "messaging_product": "whatsapp",
-                                                            "recipient_type": "individual",
-                                                            "to" => phone_number,
-                                                            "type" => "interactive",
-                                                            "interactive" => 
-                                                            message.content_attributes}.to_json)
-                                                          
-                                                          process_response(response)
-                                                        end
 
   def business_account_path
     "https://graph.facebook.com/v14.0/#{whatsapp_channel.provider_config['business_account_id']}"

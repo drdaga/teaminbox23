@@ -59,9 +59,7 @@ class Message < ApplicationRecord
     article: 7,
     incoming_email: 8,
     input_csat: 9,
-    media: 10,
-    interactive: 11,
-    integrations: 12
+    integrations: 10
   }
   enum status: { sent: 0, delivered: 1, read: 2, failed: 3 }
   # [:submitted_email, :items, :submitted_values] : Used for bot message types
@@ -71,7 +69,8 @@ class Message < ApplicationRecord
   # [:external_created_at] : Can specify if the message was created at a different timestamp externally
   # [:external_error : Can specify if the message creation failed due to an error at external API
   store :content_attributes, accessors: [:submitted_email, :items, :submitted_values, :email, :in_reply_to, :deleted,
-                                         :external_created_at, :story_sender, :story_id, :external_error], coder: JSON
+                                         :external_created_at, :story_sender, :story_id, :external_error,
+                                         :translations], coder: JSON
 
   store :external_source_ids, accessors: [:slack], coder: JSON, prefix: :external_source_id
 
@@ -102,24 +101,7 @@ class Message < ApplicationRecord
   def channel_token
     @token ||= inbox.channel.try(:page_access_token)
   end
- 
-  def attachment_type
-  
-    return %w[image audio video].include?(attachments.first.file_type) ? attachments.first.file_type : 'document' if attachments.present?
-  end
-  def interactive_content
-    return content_attributes if content_type? == 'interactive'
-  
-    logger = Logger.new(STDOUT)
-    logger.info("interactive message")
-    logger.info(content_type)
-  
-  end
-  def attachment_url
-    return attachments.first.download_url if attachments.present?
-    return content_attributes['image_uri'] if media?
-  end
-  
+
   def push_event_data
     data = attributes.merge(
       created_at: created_at.to_i,
