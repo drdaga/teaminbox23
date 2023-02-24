@@ -9,7 +9,7 @@ on:
   push:
     branches:
       - main
-      - new-features
+
     tags:
       - v*
   workflow_dispatch:
