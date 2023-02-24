@@ -59,7 +59,9 @@ class Message < ApplicationRecord
     article: 7,
     incoming_email: 8,
     input_csat: 9,
-    integrations: 10
+    media: 10,
+    interactive: 11,
+    integrations: 12
   }
   enum status: { sent: 0, delivered: 1, read: 2, failed: 3 }
   # [:submitted_email, :items, :submitted_values] : Used for bot message types
@@ -100,7 +102,24 @@ class Message < ApplicationRecord
   def channel_token
     @token ||= inbox.channel.try(:page_access_token)
   end
-
+ 
+  def attachment_type
+  
+    return %w[image audio video].include?(attachments.first.file_type) ? attachments.first.file_type : 'document' if attachments.present?
+  end
+  def interactive_content
+    return content_attributes if content_type? == 'interactive'
+  
+    logger = Logger.new(STDOUT)
+    logger.info("interactive message")
+    logger.info(content_type)
+  
+  end
+  def attachment_url
+    return attachments.first.download_url if attachments.present?
+    return content_attributes['image_uri'] if media?
+  end
+  
   def push_event_data
     data = attributes.merge(
       created_at: created_at.to_i,
