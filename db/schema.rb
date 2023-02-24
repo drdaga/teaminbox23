@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_06_10_73848) do
+ActiveRecord::Schema.define(version: 2023_02_09_033203) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_stat_statements"
@@ -618,7 +618,6 @@ ActiveRecord::Schema.define(version: 2023_06_10_73848) do
     t.bigint "sender_id"
     t.jsonb "external_source_ids", default: {}
     t.jsonb "additional_attributes", default: {}
-    t.string "type"
     t.index "((additional_attributes -> 'campaign_id'::text))", name: "index_messages_on_additional_attributes_campaign_id", using: :gin
     t.index ["account_id"], name: "index_messages_on_account_id"
     t.index ["conversation_id"], name: "index_messages_on_conversation_id"
