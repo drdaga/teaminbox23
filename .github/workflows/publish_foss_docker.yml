@@ -9,7 +9,6 @@ on:
   push:
     branches:
       - main
-      - chatwoot
 
     tags:
       - v*
