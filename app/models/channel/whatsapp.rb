@@ -44,7 +44,7 @@ class Channel::Whatsapp < ApplicationRecord
     else
       Whatsapp::Providers::Whatsapp360DialogService.new(whatsapp_channel: self)
     end
-  end
+    end
 
   def messaging_window_enabled?
     true

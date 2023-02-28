@@ -65,14 +65,14 @@ export const getters = {
       whatsAppMessageTemplates || apiInboxMessageTemplates;
 
     // filtering out the whatsapp templates with media
-    if (messagesTemplates instanceof Array) {
-      return messagesTemplates.filter(template => {
-        return !template.components.some(
-          i => i.format === 'IMAGE' || i.format === 'VIDEO'
-        );
-      });
-    }
-    return [];
+    // if (messagesTemplates) {
+    //   return messagesTemplates.filter(template => {
+    //     return !template.components.some(
+    //       i => i.format === 'IMAGE' || i.format === 'VIDEO'
+    //     );
+    //   });
+    // }
+    return messagesTemplates ? messagesTemplates : [];
   },
   getNewConversationInboxes($state) {
     return $state.records.filter(inbox => {
@@ -110,6 +110,12 @@ export const getters = {
       item =>
         item.channel_type === INBOX_TYPES.SMS ||
         (item.channel_type === INBOX_TYPES.TWILIO && item.medium === 'sms')
+        );
+      },
+      getWhatsappInboxes($state) {
+        return $state.records.filter(
+          item =>
+            item.channel_type === INBOX_TYPES.WHATSAPP
     );
   },
   dialogFlowEnabledInboxes($state) {
