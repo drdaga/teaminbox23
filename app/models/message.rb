@@ -104,10 +104,7 @@ class Message < ApplicationRecord
     @token ||= inbox.channel.try(:page_access_token)
   end
   
-  def attachment_type
   
-    return %w[image audio video].include?(attachments.first.file_type) ? attachments.first.file_type : 'document' if attachments.present?
-  end
   def interactive_content
     return content_attributes if content_type? == 'interactive'
   
