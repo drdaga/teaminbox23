@@ -34,7 +34,7 @@ const primaryMenuItems = accountId => [
     label: 'CAMPAIGNS',
     featureFlag: FEATURE_FLAGS.CAMPAIGNS,
     toState: frontendURL(`accounts/${accountId}/campaigns`),
-    toStateName: 'whatsapp',
+    toStateName: 'settings_account_campaigns',
     roles: ['administrator'],
   },
   {

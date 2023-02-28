@@ -40,10 +40,10 @@ class Channel::Whatsapp < ApplicationRecord
 
   def provider_service
     if provider == 'whatsapp_cloud'
-      Whatsapp::Enhanced::WhatsappCloudService.new(whatsapp_channel: self)
+      Whatsapp::Providers::WhatsappCloudService.new(whatsapp_channel: self)
     else
-      Whatsapp::Enhanced::Whatsapp360DialogService.new(whatsapp_channel: self)
-        end
+      Whatsapp::Providers::Whatsapp360DialogService.new(whatsapp_channel: self)
+    end
   end
 
   def messaging_window_enabled?
