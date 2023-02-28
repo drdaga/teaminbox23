@@ -59,11 +59,9 @@ class Message < ApplicationRecord
     article: 7,
     incoming_email: 8,
     input_csat: 9,
-    media: 10,
-    interactive: 11,
-    integrations: 12
+    integrations: 10
   }
-    enum status: { sent: 0, delivered: 1, read: 2, failed: 3 }
+  enum status: { sent: 0, delivered: 1, read: 2, failed: 3 }
   # [:submitted_email, :items, :submitted_values] : Used for bot message types
   # [:email] : Used by conversation_continuity incoming email messages
   # [:in_reply_to] : Used to reply to a particular tweet in threads
@@ -103,17 +101,7 @@ class Message < ApplicationRecord
   def channel_token
     @token ||= inbox.channel.try(:page_access_token)
   end
-  
-  
-  def interactive_content
-    return content_attributes if content_type? == 'interactive'
-  
-    logger = Logger.new(STDOUT)
-    logger.info("interactive message")
-    logger.info(content_type)
-  
-  end
-  
+
   def push_event_data
     data = attributes.merge(
       created_at: created_at.to_i,

@@ -1,8 +1,5 @@
 <template>
-	  <li		  <li v-if="shouldRenderMessage" :class="alignBubble">
-    v-if="hasAttachments || data.content || isEmailContentType"		
-    :class="alignBubble">    
-    
+  <li v-if="shouldRenderMessage" :class="alignBubble">
     <div :class="wrapClass">
       <div v-tooltip.top-start="messageToolTip" :class="bubbleClass">
         <bubble-mail-head
@@ -10,11 +7,6 @@
           :cc="emailHeadAttributes.cc"
           :bcc="emailHeadAttributes.bcc"
           :is-incoming="isIncoming"
-        />
-        	        <bubble-whatsapp-template		
-          v-if="isWhatsappTemplate && !isMessageDeleted"		
-          :message="message"		
-          :data="data"		
         />
         <bubble-text
           v-if="data.content"
@@ -354,9 +346,6 @@ export default {
     },
     isAnIntegrationMessage() {
       return this.contentType === 'integrations';
-    },
-   isWhatsappTemplate() {	
-      return this.data?.additional_attributes?.template_params ? true : false;	
     },
     emailHeadAttributes() {
       return {
