@@ -113,10 +113,6 @@ class Message < ApplicationRecord
     logger.info(content_type)
   
   end
-  def attachment_url
-    return attachments.first.download_url if attachments.present?
-    return content_attributes['image_uri'] if media?
-  end
   
   def push_event_data
     data = attributes.merge(
