@@ -41,7 +41,7 @@ class Campaign < ApplicationRecord
   belongs_to :inbox
   belongs_to :sender, class_name: 'User', optional: true
 
-  enum campaign_type: { ongoing: 0, one_off: 1 }
+  enum campaign_type: { ongoing: 0, one_off: 1, whatsapp: 2 }
   # TODO : enabled attribute is unneccessary . lets move that to the campaign status with additional statuses like draft, disabled etc.
   enum campaign_status: { active: 0, completed: 1 }
 
@@ -51,12 +51,13 @@ class Campaign < ApplicationRecord
   after_commit :set_display_id, unless: :display_id?
 
   def trigger!
-    return unless one_off?
+    return unless one_off? || whatsapp?
     return if completed?
 
     Twilio::OneoffSmsCampaignService.new(campaign: self).perform if inbox.inbox_type == 'Twilio SMS'
     Sms::OneoffSmsCampaignService.new(campaign: self).perform if inbox.inbox_type == 'Sms'
-  end
+    Whatsapp::WhatsappCampaignService.new(campaign: self).perform if inbox.inbox_type == 'Whatsapp'
+ end
 
   private
 
@@ -67,27 +68,32 @@ class Campaign < ApplicationRecord
   def validate_campaign_inbox
     return unless inbox
 
-    errors.add :inbox, 'Unsupported Inbox type' unless ['Website', 'Twilio SMS', 'Sms'].include? inbox.inbox_type
+    errors.add :inbox, 'Unsupported Inbox type' unless ['Website', 'Twilio SMS', 'Sms', 'Whatsapp'].include? inbox.inbox_type
   end
 
   # TO-DO we clean up with better validations when campaigns evolve into more inboxes
   def ensure_correct_campaign_attributes
     return if inbox.blank?
 
-    if ['Twilio SMS', 'Sms'].include?(inbox.inbox_type)
-      self.campaign_type = 'one_off'
+    campaign_types = {
+      'Twilio SMS' => 'one_off',
+      'Sms' => 'one_off',
+      'Whatsapp' => 'whatsapp'
+    }
+
+    if ['Twilio SMS', 'Sms', 'Whatsapp'].include?(inbox.inbox_type)
       self.scheduled_at ||= Time.now.utc
     else
-      self.campaign_type = 'ongoing'
       self.scheduled_at = nil
     end
+
+    self.campaign_type = campaign_types[inbox.inbox_type] || 'ongoing'
   end
 
   def validate_url
     return unless trigger_rules['url']
 
-    use_http_protocol = trigger_rules['url'].starts_with?('http://') || trigger_rules['url'].starts_with?('https://')
-    errors.add(:url, 'invalid') if inbox.inbox_type == 'Website' && !use_http_protocol
+    errors.add(:url, 'invalid') if inbox.inbox_type == 'Website' && !url_valid?(trigger_rules['url'])
   end
 
   def prevent_completed_campaign_from_update

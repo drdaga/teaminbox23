@@ -40,9 +40,9 @@ class Channel::Whatsapp < ApplicationRecord
 
   def provider_service
     if provider == 'whatsapp_cloud'
-      Whatsapp::Providers::WhatsappCloudService.new(whatsapp_channel: self)
+      Whatsapp::Enhanced::WhatsappCloudService.new(whatsapp_channel: self)
     else
-      Whatsapp::Providers::Whatsapp360DialogService.new(whatsapp_channel: self)
+      Whatsapp::Enhanced::Whatsapp360DialogService.new(whatsapp_channel: self)
     end
   end
 
@@ -55,6 +55,9 @@ class Channel::Whatsapp < ApplicationRecord
   delegate :sync_templates, to: :provider_service
   delegate :media_url, to: :provider_service
   delegate :api_headers, to: :provider_service
+  delegate :message_path, to: :provider_service
+  delegate :message_update_payload, to: :provider_service
+  delegate :message_update_http_method, to: :provider_service
 
   private
 
