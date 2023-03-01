@@ -29,23 +29,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Strip enterprise code
-        run: |
-          rm -rf enterprise
-          rm -rf spec/enterprise
-
-      - name: Set Teaminbox edition
-        run: |
-          echo -en '\nENV CW_EDITION="ce"' >> docker/Dockerfile
-
+ 
       - name: set docker tag
         run: |
-          echo "DOCKER_TAG=drdaga/teaminbox:latest" >> $GITHUB_ENV
+          echo "DOCKER_TAG=drdaga/teaminbox:beta" >> $GITHUB_ENV
 
-      - name: replace docker tag if master
-        if: github.ref_name == 'chatwoot'
-        run: |
-          echo "DOCKER_TAG=drdaga/teaminbox:chatwoot" >> $GITHUB_ENV
 
       - name: Login to DockerHub
         uses: docker/login-action@v1
