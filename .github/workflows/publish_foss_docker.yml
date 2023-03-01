@@ -32,7 +32,7 @@ jobs:
  
       - name: set docker tag
         run: |
-          echo "DOCKER_TAG=drdaga/teaminbox:beta1.1" >> $GITHUB_ENV
+          echo "DOCKER_TAG=drdaga/teaminbox:beta1.1.1" >> $GITHUB_ENV
 
 
       - name: Login to DockerHub

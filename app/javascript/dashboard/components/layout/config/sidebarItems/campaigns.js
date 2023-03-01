@@ -2,8 +2,8 @@ import { frontendURL } from '../../../../helper/URLHelper';
 
 const campaigns = accountId => ({
   parentNav: 'campaigns',
-  routes: ['settings_account_campaigns', 'one_off'],
-  menuItems: [
+  routes: ['settings_account_campaigns', 'one_off', 'whatsapp'],
+    menuItems: [
     {
       icon: 'whatsapp',
       label: 'WHATSAPP',
