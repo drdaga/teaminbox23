@@ -21,8 +21,12 @@
 </template>
 
 <script>
-import TemplatesPicker from './TemplatesPicker.vue';
-import TemplateParser from './TemplateParser.vue';
+// import TemplatesPicker from './TemplatesPicker.vue';
+// import TemplateParser from './TemplateParser.vue';
+// use enhanced picker and parser
+import TemplatesPicker from './Enhanced/TemplatesPicker.vue';
+import TemplateParser from './Enhanced/TemplateParser.vue';
+
 export default {
   components: {
     TemplatesPicker,

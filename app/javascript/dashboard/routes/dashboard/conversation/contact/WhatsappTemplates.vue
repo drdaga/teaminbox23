@@ -15,8 +15,8 @@
 </template>
 
 <script>
-import TemplatesPicker from 'dashboard/components/widgets/conversation/WhatsappTemplates/TemplatesPicker.vue';
-import TemplateParser from 'dashboard/components/widgets/conversation/WhatsappTemplates/TemplateParser.vue';
+import TemplatesPicker from 'dashboard/components/widgets/conversation/WhatsappTemplates/Enhanced/TemplatesPicker.vue';
+import TemplateParser from 'dashboard/components/widgets/conversation/WhatsappTemplates/Enhanced/TemplateParser.vue';
 export default {
   components: {
     TemplatesPicker,

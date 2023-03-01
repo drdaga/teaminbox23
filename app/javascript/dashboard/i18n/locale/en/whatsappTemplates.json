@@ -9,8 +9,12 @@
             "SEARCH_PLACEHOLDER": "Search Templates",
             "NO_TEMPLATES_FOUND": "No templates found for",
             "LABELS": {
+                "NAME": "Name",
                 "LANGUAGE": "Language",
-                "TEMPLATE_BODY": "Template Body",
+                "TEMPLATE_BODY": "Body",
+                "TEMPLATE_HEADER": "Headers",
+                "TEMPLATE_FOOTER": "Footer",
+                "TEMPLATE_BUTTONS": "Buttons",
                 "CATEGORY": "Category"
             }
         },
@@ -19,7 +23,8 @@
             "VARIABLE_PLACEHOLDER": "Enter %{variable} value",
             "GO_BACK_LABEL": "Go Back",
             "SEND_MESSAGE_LABEL": "Send Message",
-            "FORM_ERROR_MESSAGE": "Please fill all variables before sending"
+            "FORM_ERROR_MESSAGE": "Please fill all variables before sending",
+            "FORM_ERROR_URL":"the field under validation must be a valid url"
         }
     }
 }

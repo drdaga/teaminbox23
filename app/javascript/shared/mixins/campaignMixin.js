@@ -5,6 +5,7 @@ export default {
     campaignType() {
       const pageURL = window.location.href;
       return pageURL.substring(pageURL.lastIndexOf('/') + 1);
+      return type;
     },
     isOngoingType() {
       return this.campaignType === CAMPAIGN_TYPES.ONGOING;
@@ -12,5 +13,8 @@ export default {
     isOnOffType() {
       return this.campaignType === CAMPAIGN_TYPES.ONE_OFF;
     },
+    isWhatsappType() {
+      return this.campaignType === CAMPAIGN_TYPES.WHATSAPP;
+    }
   },
 };

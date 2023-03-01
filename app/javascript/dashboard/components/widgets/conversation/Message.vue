@@ -8,8 +8,13 @@
           :bcc="emailHeadAttributes.bcc"
           :is-incoming="isIncoming"
         />
+        <bubble-whatsapp-template
+          v-if="isWhatsappTemplate && !isMessageDeleted"
+          :message="message"
+          :data="data"
+        />
         <bubble-text
-          v-if="data.content"
+          v-else-if="data.content"
           :message="message"
           :is-email="isEmailContentType"
           :display-quoted-button="displayQuotedButton"
