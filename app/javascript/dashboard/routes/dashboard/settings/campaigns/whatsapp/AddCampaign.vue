@@ -1,6 +1,6 @@
 <template>
   <div class="column content-box">
-    <team-modal-header
+    <woot-modal-header
       :header-title="$t('CAMPAIGN.ADD.TITLE')"
       :header-content="$t('CAMPAIGN.ADD.DESC')"
     />
@@ -18,7 +18,7 @@
           </span>
         </label>
 
-        <team-input
+        <woot-input
           v-model="title"
           :label="$t('CAMPAIGN.ADD.FORM.TITLE.LABEL')"
           type="text"
@@ -67,7 +67,7 @@
 
         <label>
           {{ $t('CAMPAIGN.ADD.FORM.SCHEDULED_AT.LABEL') }}
-          <team-date-time-picker
+          <woot-date-time-picker
             :value="scheduledAt"
             :confirm-text="$t('CAMPAIGN.ADD.FORM.SCHEDULED_AT.CONFIRM')"
             :placeholder="$t('CAMPAIGN.ADD.FORM.SCHEDULED_AT.PLACEHOLDER')"
@@ -76,13 +76,13 @@
         </label>
       </div>
 
-      <div class="modal-footer">
-        <team-button :is-loading="uiFlags.isCreating">
+     <div class="modal-footer">
+        <woot-button :is-loading="uiFlags.isCreating">
           {{ $t('CAMPAIGN.ADD.CREATE_BUTTON_TEXT') }}
-        </team-button>
-        <team-button variant="clear" @click.prevent="onClose">
+        </woot-button>
+        <woot-button variant="clear" @click.prevent="onClose">
           {{ $t('CAMPAIGN.ADD.CANCEL_BUTTON_TEXT') }}
-        </team-button>
+        </woot-button>
       </div>
     </form>
   </div>
@@ -207,7 +207,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-::v-deep .ProseMirror-team-style {
+::v-deep .ProseMirror-woot-style {
   height: 8rem;
 }
 </style>

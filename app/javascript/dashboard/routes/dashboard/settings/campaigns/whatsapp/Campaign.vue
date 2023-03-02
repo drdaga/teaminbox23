@@ -7,7 +7,7 @@
       :campaign-type="type"
       @on-delete-click="openDeletePopup"
     />
-    <team-delete-modal
+    <woot-delete-modal
       :show.sync="showDeleteConfirmationPopup"
       :on-close="closeDeletePopup"
       :on-confirm="confirmDeletion"
